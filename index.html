@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스마트 좌석 배정 — 미래관</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="phone-wrap">
+
+  <!-- ── Top bar ── -->
+  <div class="topbar">
+    <div class="topbar-icon">🏛️</div>
+    <div>
+      <div class="topbar-title">스마트 좌석 배정</div>
+      <div class="topbar-sub" id="topbar-sub">국민대 소프트웨어융합대학 — 미래관</div>
+    </div>
+    <div class="topbar-badge">BETA</div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       S1: Home + Room Select
+  ══════════════════════════════════════ -->
+  <div class="screen active" id="s1">
+    <div class="step-badge">🏠 메인 화면</div>
+    <div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:3px">안녕하세요, 김민준 님 👋</div>
+    <div style="font-size:13px;color:#94a3b8;margin-bottom:12px">강의실을 선택하고 KCard를 태그하세요</div>
+
+    <div style="font-size:13px;font-weight:700;color:var(--gray-800);margin-bottom:6px">📍 강의실 선택</div>
+    <div class="room-select">
+      <div class="room-btn selected" id="room-424" onclick="selectRoom('424')">
+        <div class="room-num">424</div><div class="room-desc">4층 · 100석</div>
+      </div>
+      <div class="room-btn" id="room-445" onclick="selectRoom('445')">
+        <div class="room-num">445</div><div class="room-desc">4층 · 100석</div>
+      </div>
+      <div class="room-btn" id="room-447" onclick="selectRoom('447')">
+        <div class="room-num">447</div><div class="room-desc">4층 · 100석</div>
+      </div>
+      <div class="room-btn" id="room-611" onclick="selectRoom('611')">
+        <div class="room-num">611</div><div class="room-desc">6층 · 100석</div>
+      </div>
+    </div>
+
+    <div class="tag-anim">
+      <div class="kcard-visual pulse">
+        <div style="text-align:center">
+          <div class="kcard-text">🎓 K-CARD</div>
+          <div class="kcard-sub">국민대학교</div>
+        </div>
+      </div>
+      <div class="arrow-down">⬇</div>
+      <div class="beacon-ring">📡</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:3px">미래관 비콘</div>
+    </div>
+
+    <button class="btn btn-primary" onclick="goTo('s2')">🪄 KCard 태그 시뮬레이션 →</button>
+    <button class="btn btn-secondary" onclick="goTo('s4')" style="margin-top:6px">📹 AI CCTV 감지 현황</button>
+    <button class="btn btn-secondary" onclick="goTo('s5')" style="margin-top:6px">📋 시스템 흐름도</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       S2: Scanning
+  ══════════════════════════════════════ -->
+  <div class="screen" id="s2">
+    <div class="step-badge">1단계 — KCard 태그 감지</div>
+    <div class="notification">
+      <div class="notif-title">📶 KCard 인식됨!</div>
+      <div class="notif-body">
+        학번: 2024-XXXXX<br>
+        미래관 <span id="s2-room">424</span>호 비콘 수신<br>
+        서버에서 좌석 데이터 조회 중...
+      </div>
+    </div>
+
+    <div class="loading-bar"><div class="loading-fill" id="lbar"></div></div>
+    <div style="font-size:11px;color:#94a3b8;text-align:center;margin-bottom:12px;min-height:16px;font-family:'JetBrains Mono',monospace"
+         id="ltext">서버 연결 중...</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">
+      <div class="card" style="margin-bottom:0"><div class="card-title">강의실</div><div class="card-value" style="font-size:14px">미래관 <span class="s2r">424</span>호</div></div>
+      <div class="card" style="margin-bottom:0"><div class="card-title">총 좌석</div><div class="card-value">100석</div></div>
+      <div class="card" style="margin-bottom:0"><div class="card-title">빈 좌석</div><div class="card-value" style="color:#16a34a" id="s2-empty">56석</div></div>
+      <div class="card" style="margin-bottom:0"><div class="card-title">콘센트 여석</div><div class="card-value" style="color:#1a4a9e" id="s2-outlet">14석</div></div>
+    </div>
+
+    <button class="btn btn-primary" id="nextBtn2" onclick="goTo('s3')" disabled>⚡ 추천 자리 받기</button>
+    <button class="btn btn-secondary" onclick="goTo('s1')" style="margin-top:6px">← 뒤로</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       S3: Seat Map
+  ══════════════════════════════════════ -->
+  <div class="screen" id="s3">
+    <div class="step-badge">2단계 — AI 추천 좌석</div>
+    <div class="notification" style="background:#f0fdf4;border-color:#86efac">
+      <div class="notif-title" style="color:#15803d">⚡ 추천 좌석: <span id="rec-seat">D5</span></div>
+      <div class="notif-body" style="color:#166534">
+        콘센트 인접 · 전방 중앙 · 시야 최우수<br>
+        미래관 <span class="s2r">424</span>호 — 지금 이동하세요!
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;color:#94a3b8;text-align:center;margin-bottom:6px;letter-spacing:1px">[ 칠판 / 강단 ]</div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="dot" style="background:#dcfce7;border:1px solid #86efac"></div>빈 자리</div>
+      <div class="legend-item"><div class="dot" style="background:#fee2e2;border:1px solid #fca5a5"></div>사용 중</div>
+      <div class="legend-item"><div class="dot" style="background:#0f2a5c"></div>추천 ⚡</div>
+    </div>
+
+    <div class="grid-scroll">
+      <div class="seat-grid" id="seatGrid"></div>
+    </div>
+
+    <div class="card" style="margin-top:6px">
+      <div class="info-row"><span class="info-label">추천 좌석</span><span class="info-value" style="color:#0f2a5c"><span id="rec-seat2">D5</span> (콘센트 ⚡)</span></div>
+      <div class="info-row"><span class="info-label">추천 이유</span><span class="info-value">콘센트 + 전방 시야 최우수</span></div>
+      <div class="info-row"><span class="info-label">현재 점유율</span><span class="info-value">44%</span></div>
+      <div class="info-row"><span class="info-label">강의실</span><span class="info-value">미래관 <span class="s2r">424</span>호</span></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="goTo('s1')">✅ 확인 완료 (처음으로)</button>
+    <button class="btn btn-secondary" onclick="goTo('s4')" style="margin-top:6px">📹 AI 감지 현황 보기</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       S4: AI CCTV
+  ══════════════════════════════════════ -->
+  <div class="screen" id="s4">
+    <div class="step-badge">📹 AI CCTV 실시간 감지</div>
+
+    <div class="tab-bar">
+      <div class="tab active" id="tab-live"  onclick="switchTab('live')">실시간 감지</div>
+      <div class="tab"        id="tab-stats" onclick="switchTab('stats')">통계</div>
+    </div>
+
+    <!-- Live tab -->
+    <div id="tab-live-content">
+      <div style="font-size:11px;color:#64748b;margin-bottom:8px;background:#f8fafc;padding:7px 10px;border-radius:8px;border:1px solid #e2e8f0">
+        🎥 기존 CCTV → YOLOv8 AI 분석 → DB 업데이트 (30초 주기)
+      </div>
+      <div class="cctv-grid">
+        <div class="cctv-card"><div class="cctv-label">424호</div><div class="cctv-val" style="color:#16a34a">56 공석</div></div>
+        <div class="cctv-card"><div class="cctv-label">445호</div><div class="cctv-val" style="color:#dc2626"> 8 공석</div></div>
+        <div class="cctv-card"><div class="cctv-label">447호</div><div class="cctv-val" style="color:#16a34a">34 공석</div></div>
+        <div class="cctv-card"><div class="cctv-label">611호</div><div class="cctv-val" style="color:#dc2626"> 5 공석</div></div>
+      </div>
+      <div class="notification">
+        <div class="notif-title">🤖 AI 분석 현황</div>
+        <div class="notif-body">
+          모델: YOLOv8 (객체 감지)<br>
+          갱신 주기: 30초 | 정확도: 94.2%<br>
+          마지막 업데이트: 방금 전
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats tab -->
+    <div id="tab-stats-content" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">
+        <div class="card" style="margin-bottom:0"><div class="card-title">총 좌석 (4개 강의실)</div><div class="card-value">400석</div></div>
+        <div class="card" style="margin-bottom:0"><div class="card-title">현재 빈 좌석</div><div class="card-value" style="color:#16a34a">103석</div></div>
+        <div class="card" style="margin-bottom:0"><div class="card-title">콘센트 좌석</div><div class="card-value" style="color:#1a4a9e">~100석</div></div>
+        <div class="card" style="margin-bottom:0"><div class="card-title">전체 점유율</div><div class="card-value" style="color:#d97706">74%</div></div>
+      </div>
+      <div class="card">
+        <div class="info-row"><span class="info-label">금일 최대 점유</span><span class="info-value">97%</span></div>
+        <div class="info-row"><span class="info-label">피크 시간대</span><span class="info-value">13:00~15:00</span></div>
+        <div class="info-row"><span class="info-label">평균 이용시간</span><span class="info-value">72분</span></div>
+        <div class="info-row"><span class="info-label">가장 혼잡한 강의실</span><span class="info-value">611호</span></div>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary" onclick="goTo('s1')" style="margin-top:8px">← 메인으로</button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       S5: System Flow
+  ══════════════════════════════════════ -->
+  <div class="screen" id="s5">
+    <div class="step-badge">📋 시스템 흐름도</div>
+
+    <div class="section-h">상단 흐름 (학생 측)</div>
+    <div class="card" style="padding:10px 14px">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div>
+          <div class="flow-title">강의실 선택 + KCard 태그</div>
+          <div class="flow-desc">미래관 424/445/447/611호 입구 비콘에 KCard 태그</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div>
+          <div class="flow-title">서버 데이터 조회</div>
+          <div class="flow-desc">서버가 콘센트 위치 + 빈 자리 데이터 매칭 (100석 기준)</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div>
+          <div class="flow-title">추천 자리 수신</div>
+          <div class="flow-desc">학생 앱으로 최적 좌석 정보 전송</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-h">하단 흐름 (AI 감지)</div>
+    <div class="card" style="padding:10px 14px">
+      <div class="flow-step">
+        <div class="flow-num" style="background:#16a34a">A</div>
+        <div>
+          <div class="flow-title">기존 CCTV 활용</div>
+          <div class="flow-desc">미래관 기존 CCTV 인프라 그대로 사용</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num" style="background:#16a34a">B</div>
+        <div>
+          <div class="flow-title">AI 실시간 분석</div>
+          <div class="flow-desc">YOLOv8 모델이 100석 좌석 점유 감지 (정확도 94%)</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num" style="background:#16a34a">C</div>
+        <div>
+          <div class="flow-title">서버 DB 업데이트</div>
+          <div class="flow-desc">30초 주기로 4개 강의실 실시간 좌석 현황 갱신</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background:#f0f9ff;border-color:#bae6fd;padding:11px 14px">
+      <div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:4px">💡 핵심 장점</div>
+      <div style="font-size:12px;color:#0c4a6e;line-height:1.7">
+        ✅ 기존 CCTV 그대로 활용 (추가 설치 불필요)<br>
+        ✅ KCard 기존 학교 시스템 활용<br>
+        ✅ 4개 강의실 통합 관리 (424·445·447·611)<br>
+        ✅ 구현 가능성 높음 → 발표에서 강조!
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="goTo('s1')">← 메인으로</button>
+  </div>
+
+</div><!-- /.phone-wrap -->
+
+<script src="script.js"></script>
+</body>
+</html>
