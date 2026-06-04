@@ -26,22 +26,22 @@
   ══════════════════════════════════════ -->
   <div class="screen active" id="s1">
     <div class="step-badge">🏠 메인 화면</div>
-    <div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:3px">안녕하세요, 쿠민님 👋</div>
+    <div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:3px">안녕하세요, 김민준 님 👋</div>
     <div style="font-size:13px;color:#94a3b8;margin-bottom:12px">강의실을 선택하고 KCard를 태그하세요</div>
 
     <div style="font-size:13px;font-weight:700;color:var(--gray-800);margin-bottom:6px">📍 강의실 선택</div>
     <div class="room-select">
       <div class="room-btn selected" id="room-424" onclick="selectRoom('424')">
-        <div class="room-num">424</div><div class="room-desc">4층 · 110석</div>
+        <div class="room-num">424</div><div class="room-desc">4층 · 100석</div>
       </div>
       <div class="room-btn" id="room-445" onclick="selectRoom('445')">
-        <div class="room-num">445</div><div class="room-desc">4층 · 80석</div>
+        <div class="room-num">445</div><div class="room-desc">4층 · 100석</div>
       </div>
       <div class="room-btn" id="room-447" onclick="selectRoom('447')">
-        <div class="room-num">447</div><div class="room-desc">4층 · 120석</div>
+        <div class="room-num">447</div><div class="room-desc">4층 · 100석</div>
       </div>
       <div class="room-btn" id="room-611" onclick="selectRoom('611')">
-        <div class="room-num">611</div><div class="room-desc">6층 · 90석</div>
+        <div class="room-num">611</div><div class="room-desc">6층 · 100석</div>
       </div>
     </div>
 
@@ -110,6 +110,7 @@
       <div class="legend-item"><div class="dot" style="background:#dcfce7;border:1px solid #86efac"></div>빈 자리</div>
       <div class="legend-item"><div class="dot" style="background:#fee2e2;border:1px solid #fca5a5"></div>사용 중</div>
       <div class="legend-item"><div class="dot" style="background:#0f2a5c"></div>추천 ⚡</div>
+      <div class="legend-item"><div class="dot" style="background:#fff1f2;border:1px solid #fda4af"></div>콘센트 고장 🔧</div>
     </div>
 
     <div class="grid-scroll">
@@ -248,6 +249,22 @@
   </div>
 
 </div><!-- /.phone-wrap -->
+
+<!-- ── Report Modal ── -->
+<div class="modal-overlay" id="report-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">콘센트 상태 신고</div>
+    <div class="modal-sub">좌석을 탭해서 고장 여부를 신고해요</div>
+    <div class="modal-seat" id="modal-seat-id">D5</div>
+    <div style="font-size:12px;color:#475569;margin-bottom:14px;text-align:center">
+      이 좌석의 콘센트가 고장났나요?<br>신고하면 다른 학생에게도 알려져요 🙏
+    </div>
+    <div class="modal-btn-row">
+      <button class="btn btn-secondary" style="margin-top:0" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" style="margin-top:0;background:#dc2626" id="modal-action-btn" onclick="submitReport()">🔧 고장 신고하기</button>
+    </div>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>
