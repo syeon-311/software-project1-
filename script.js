@@ -2,6 +2,12 @@ let selectedRoom = '424';
 const ROOMS = ['424', '445', '447', '611'];
 
 /* ─────────────────────────────────────────
+   Broken outlet reports (per room)
+───────────────────────────────────────── */
+const brokenOutlets = { '424': new Set(), '445': new Set(), '447': new Set(), '611': new Set() };
+let reportTargetSeat = null;
+
+/* ─────────────────────────────────────────
    Seat data generation (seeded pseudo-random)
 ───────────────────────────────────────── */
 function seededRand(seed) {
@@ -23,9 +29,10 @@ function genSeats(roomSeed) {
     }
   });
 
-  // Pick a recommended seat: empty + outlet, rows C–E, cols 4–7
+  // Pick recommended seat: empty + outlet, rows C–E, cols 4–7
   const recCandidates = seats.filter(s =>
     !s.occ && s.outlet &&
+    !brokenOutlets[selectedRoom]?.has(s.id) &&
     'CDE'.includes(s.id[0]) &&
     parseInt(s.id.slice(1)) >= 4 &&
     parseInt(s.id.slice(1)) <= 7
@@ -33,7 +40,8 @@ function genSeats(roomSeed) {
   const rec =
     recCandidates.length
       ? recCandidates[0]
-      : seats.find(s => !s.occ && s.outlet) || seats.find(s => !s.occ);
+      : seats.find(s => !s.occ && s.outlet && !brokenOutlets[selectedRoom]?.has(s.id))
+        || seats.find(s => !s.occ);
 
   return { seats, rec };
 }
@@ -69,13 +77,13 @@ function goTo(id) {
    S2: Scanning screen
 ───────────────────────────────────────── */
 function initScreenS2() {
-  // Update room references
   document.querySelectorAll('#s2-room, .s2r')
     .forEach(el => el.textContent = selectedRoom);
 
   const data = ROOM_DATA[selectedRoom];
+  const broken = brokenOutlets[selectedRoom];
   const empty       = data.seats.filter(s => !s.occ).length;
-  const outletEmpty = data.seats.filter(s => !s.occ && s.outlet).length;
+  const outletEmpty = data.seats.filter(s => !s.occ && s.outlet && !broken.has(s.id)).length;
 
   document.getElementById('s2-empty').textContent  = empty + '석';
   document.getElementById('s2-outlet').textContent = outletEmpty + '석';
@@ -122,30 +130,125 @@ function initScreenS3() {
     .forEach(el => el.textContent = selectedRoom);
 
   const data = ROOM_DATA[selectedRoom];
+  // Re-pick rec considering broken outlets
+  const broken = brokenOutlets[selectedRoom];
+  const recCandidates = data.seats.filter(s =>
+    !s.occ && s.outlet && !broken.has(s.id) &&
+    'CDE'.includes(s.id[0]) &&
+    parseInt(s.id.slice(1)) >= 4 &&
+    parseInt(s.id.slice(1)) <= 7
+  );
+  data.rec = recCandidates.length
+    ? recCandidates[0]
+    : data.seats.find(s => !s.occ && s.outlet && !broken.has(s.id))
+      || data.seats.find(s => !s.occ);
+
   document.getElementById('rec-seat').textContent  = data.rec.id;
   document.getElementById('rec-seat2').textContent = data.rec.id;
+
+  updateBrokenBadge();
   buildGrid(data);
+}
+
+function updateBrokenBadge() {
+  const count = brokenOutlets[selectedRoom].size;
+  let badge = document.getElementById('broken-badge');
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.id = 'broken-badge';
+    badge.className = 'report-badge';
+    const title = document.querySelector('#s3 .notif-title');
+    if (title) title.appendChild(badge);
+  }
+  badge.textContent = count > 0 ? `🔧 고장 신고 ${count}건` : '';
+  badge.style.display = count > 0 ? 'inline-block' : 'none';
 }
 
 function buildGrid(data) {
   const g = document.getElementById('seatGrid');
   g.innerHTML = '';
+  const broken = brokenOutlets[selectedRoom];
 
   data.seats.forEach(s => {
     const d = document.createElement('div');
+    const isBroken = s.outlet && broken.has(s.id);
     let cls = 'seat';
+
     if      (s.id === data.rec.id) cls += ' recommended';
     else if (s.occ)                cls += ' occupied';
     else                           cls += ' empty';
-    if (s.outlet) cls += ' outlet';
+
+    if (isBroken)     cls += ' broken';
+    else if (s.outlet) cls += ' outlet';
 
     d.className = cls;
     d.textContent = s.id;
     d.title = s.id
-      + (s.outlet ? ' ⚡콘센트' : '')
-      + (s.occ    ? ' (사용중)' : ' (빈자리)');
+      + (isBroken    ? ' 🔧 콘센트 고장' : s.outlet ? ' ⚡콘센트' : '')
+      + (s.occ       ? ' (사용중)' : ' (빈자리)');
+
+    // Click to report broken outlet
+    if (s.outlet && !s.occ && s.id !== data.rec.id) {
+      d.style.cursor = 'pointer';
+      d.addEventListener('click', () => openReportModal(s.id));
+    }
+
     g.appendChild(d);
   });
+}
+
+/* ─────────────────────────────────────────
+   Report modal
+───────────────────────────────────────── */
+function openReportModal(seatId) {
+  reportTargetSeat = seatId;
+  const broken = brokenOutlets[selectedRoom].has(seatId);
+  document.getElementById('modal-seat-id').textContent = seatId;
+  document.getElementById('modal-action-btn').textContent = broken ? '✅ 고장 신고 취소' : '🔧 고장 신고하기';
+  document.getElementById('modal-action-btn').onclick = broken ? cancelReport : submitReport;
+  document.getElementById('report-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('report-modal').classList.remove('open');
+  reportTargetSeat = null;
+}
+
+function submitReport() {
+  if (!reportTargetSeat) return;
+  brokenOutlets[selectedRoom].add(reportTargetSeat);
+  closeModal();
+  initScreenS3(); // rebuild grid
+  showToast(`${reportTargetSeat} 콘센트 고장 신고 완료 🔧`);
+}
+
+function cancelReport() {
+  if (!reportTargetSeat) return;
+  brokenOutlets[selectedRoom].delete(reportTargetSeat);
+  closeModal();
+  initScreenS3();
+  showToast(`${reportTargetSeat} 신고가 취소됐어요`);
+}
+
+/* ─────────────────────────────────────────
+   Toast notification
+───────────────────────────────────────── */
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `
+      position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+      background:#1e293b;color:#fff;padding:10px 18px;border-radius:20px;
+      font-size:13px;font-weight:600;z-index:200;opacity:0;
+      transition:opacity .3s;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 2500);
 }
 
 /* ─────────────────────────────────────────
