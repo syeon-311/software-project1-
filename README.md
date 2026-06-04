@@ -165,16 +165,11 @@ DB 업데이트
 
 ## 👥 Team
 
-AD Project Team
-
 국민대학교 소프트웨어융합대학
+글로벌커뮤니케이션 20230074 김시연
 
 ---
 
 ## 🚀 배포 주소
 
-Vercel 배포 후 주소 추가 예정
-
-```text
-https://your-project.vercel.app
-```
+https://software-project1-five.vercel.app/
