@@ -268,6 +268,61 @@ body {
   line-height: 1;
   padding: 1px;
 }
+.seat.broken {
+  background: #fff1f2;
+  color: var(--red);
+  border-color: #fda4af;
+  cursor: pointer;
+}
+.seat.broken::after {
+  content: "🔧";
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 8px;
+  background: #fff;
+  border-radius: 50%;
+  line-height: 1;
+  padding: 1px;
+}
+
+/* ── Report modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 20px;
+  width: 320px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn 0.2s ease;
+}
+.modal-title { font-size: 15px; font-weight: 700; color: var(--gray-800); margin-bottom:4px; }
+.modal-sub   { font-size: 12px; color: var(--gray-400); margin-bottom: 14px; }
+.modal-seat  { font-size: 22px; font-weight: 700; color: var(--red); text-align: center; margin-bottom: 14px; }
+.modal-btn-row { display: flex; gap: 8px; margin-top: 4px; }
+.modal-btn-row .btn { margin-top: 0; }
+
+/* ── Report count badge ── */
+.report-badge {
+  display: inline-block;
+  background: var(--red-light);
+  color: var(--red);
+  border: 1px solid #fca5a5;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  margin-left: 6px;
+}
 .row-label {
   font-size: 9px;
   color: var(--gray-400);
